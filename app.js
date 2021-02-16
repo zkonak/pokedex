@@ -4,6 +4,7 @@ var prevUrl = null;
 
 
 
+
 function poky(url, prev_ou_next) {
 
 
@@ -22,15 +23,16 @@ function poky(url, prev_ou_next) {
         fetch(url, config)
 
         .then(function(response) {
-            console.log(response)
+            //  console.log(response)
 
             response.json().then(function(data) {
 
                 // récuperer les datas sous forme de json
-                console.log(data)
+                // console.log(data)
                 let pokymon = document.querySelector('.right-container__screen')
 
                 let box = ''
+                let urlElement = ''
                 nextUrl = data.next;
                 prevUrl = data.previous;
 
@@ -45,15 +47,36 @@ function poky(url, prev_ou_next) {
 
 
 
-                    let debut = index + '.';
+                    let debut = index + '. ';
                     // pour rajouter les 1 et - au début des names
-                    let nameMajuscule = data.results[i].name.charAt(0).toUpperCase() + data.results[i].name.slice(1);
+                    let nameMajuscule = data.results[i].name;
 
-                    box += `<div class="list-item"> ${debut}${nameMajuscule}</div>`
+                    nameMajuscule = nameMajuscule.charAt(0).toUpperCase() + nameMajuscule.slice(1);
+                    // faire le lien poky et son url
+
+                    urlElement = data.results[i].url;
+                    // <a href="javascript:namePokyurl('${data.results[i].name}');"></a>
+                    box += `<div onclick="javascript:namePokyurl('${data.results[i].name}');" class="list-item"id=${nameMajuscule}> ${debut}${nameMajuscule}</div>`
+                        //console.log(urlElement)
+
 
                 }
 
                 pokymon.innerHTML = box;
+
+                let elementa = document.querySelectorAll('.list-item>a')
+                elementa.forEach(element => {
+                    element.style.color = 'white';
+                    element.style.textDecoration = 'none';
+
+
+                    // console.log(element)
+
+                });
+
+
+
+
 
             })
 
@@ -77,3 +100,64 @@ let prev = document.querySelector('div.left-button')
 prev.addEventListener("click", function() {
     poky(prevUrl, 'prev')
 });
+
+
+function namePokyurl(namePokemon) {
+
+    let pokedex = document.querySelector('div.main-section__black')
+    let elementImage1 = document.querySelector(".poke-back-image");
+    let elementImage2 = document.querySelector(".poke-front-image");
+    let elementHeight = document.querySelector(".poke-height");
+    let elementWeight = document.querySelector(".poke-weight");
+    let divElement = document.querySelector(".main-screen");
+    let poketypeone = document.querySelector(".poke-type-one");
+    let poketypetwo = document.querySelector(".poke-type-two");
+    let nom = document.querySelector(".poke-name");
+    let id = document.querySelector(".poke-id");
+
+
+    divElement.classList.remove("hide");
+
+    console.log(divElement);
+    fetch("https://pokeapi.co/api/v2/pokemon/" + namePokemon)
+        .then(function(response) {
+            response.json()
+                .then(function(data) {
+                    console.log(data);
+                    nom.innerHTML = data.name;
+                    //pour ajouter 0 au debut
+                    id.innerHTML = "#" + data.id.toString().padStart(3, '0');
+
+                    let image1 = data.sprites.back_default;
+                    let image2 = data.sprites.front_default;
+
+                    elementImage1.src = image1;
+                    elementImage2.src = image2;
+
+                    elementHeight.innerHTML = data.height;
+                    elementWeight.innerHTML = data.weight;
+                    poketypeone.innerHTML = data.types[0].type.name;
+                    if (data.types[1]) {
+                        poketypetwo.innerHTML = data.types[1].type.name;
+                    }
+                    divElement.classList.add(data.types[0].type.name);
+
+
+
+
+
+
+
+
+                })
+
+
+        });
+
+
+
+
+
+}
+
+//  function pour nous envoyer var lurel
