@@ -1,8 +1,14 @@
 var index = 0;
 var nextUrl = "https://pokeapi.co/api/v2/pokemon?offset=0&limit=20";
 var prevUrl = null;
+var activePokemonName = "pidgey";
+var activeIndex = 1;
 
-
+// function fetch(url, callback) {
+//     setTimeout(() => {
+//         callback(null, 'resultat');
+//     }, 1000);
+// }
 
 
 function poky(url, prev_ou_next) {
@@ -21,6 +27,8 @@ function poky(url, prev_ou_next) {
     } else {
 
         fetch(url, config)
+
+
 
         .then(function(response) {
             //  console.log(response)
@@ -56,8 +64,9 @@ function poky(url, prev_ou_next) {
 
                     urlElement = data.results[i].url;
                     // <a href="javascript:namePokyurl('${data.results[i].name}');"></a>
-                    box += `<div onclick="javascript:namePokyurl('${data.results[i].name}');" class="list-item"id=${nameMajuscule}> ${debut}${nameMajuscule}</div>`
-                        //console.log(urlElement)
+                    box += `<div onclick="javascript:namePokyurl('${data.results[i].name}','${index}');" class="list-item" id=${index.toString()}> ${debut}${nameMajuscule}</div>`
+
+                    //console.log(urlElement)
 
 
                 }
@@ -102,8 +111,16 @@ prev.addEventListener("click", function() {
 });
 
 
-function namePokyurl(namePokemon) {
 
+
+
+
+
+
+
+function namePokyurl(namePokemon, index) {
+    //  box += `<div onclick="javascript:namePokyurl('${data.results[i].name}','${index}');" class="list-item"id=${nameMajuscule}> ${debut}${nameMajuscule}</div>`
+    console.log("index::" + index);
     let pokedex = document.querySelector('div.main-section__black')
     let elementImage1 = document.querySelector(".poke-back-image");
     let elementImage2 = document.querySelector(".poke-front-image");
@@ -114,6 +131,9 @@ function namePokyurl(namePokemon) {
     let poketypetwo = document.querySelector(".poke-type-two");
     let nom = document.querySelector(".poke-name");
     let id = document.querySelector(".poke-id");
+    //active pokemon changement
+    activePokemonName = namePokemon;
+    activeIndex = index;
 
 
     divElement.classList.remove("hide");
@@ -161,3 +181,124 @@ function namePokyurl(namePokemon) {
 }
 
 //  function pour nous envoyer var lurel
+
+//bonusss
+console.log(activePokemonName);
+
+//let buttons = document.querySelectorAll('.buttons__button');
+let buttonB = document.querySelector('.controllers__buttons div:nth-child(1)');
+let buttonA = document.querySelector('.controllers__buttons div:nth-child(2)');
+
+buttonA.addEventListener("click", function() {
+    namePokyurl(activePokemonName);
+});
+//${activeIndex}
+
+let rightElement = document.querySelector(".right");
+let leftElement = document.querySelector(".left");
+let topElement = document.querySelector(".top");
+let bottomElement = document.querySelector(".bottom");
+
+rightElement.addEventListener("click", function() {
+    let divPokemon1 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
+    //divPokemon.classList.remove("activePokemon");
+    divPokemon1.classList.add("activePokemon");
+    activeIndex = activeIndex + 10;
+    let divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
+    if (!divPokemon2) {
+
+        poky(nextUrl, 'next');
+
+
+        setTimeout(() => {
+            activeIndex = activeIndex % 10;
+
+
+            divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
+
+        }, 1000);
+
+        //console.log(divPokemon2);
+
+    }
+    //console.log(divPokemon);
+    divPokemon2.classList.add("activePokemon");
+    divPokemon1.classList.remove("activePokemon");
+    console.log(activeIndex);
+    // console.log("activeIndex=" + activeIndex);
+    //  namePokyurl(activePokemonName, activeIndex);
+
+
+
+});
+leftElement.addEventListener("click", function() {
+    let divPokemon1 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
+    //divPokemon.classList.remove("activePokemon");
+    divPokemon1.classList.add("activePokemon");
+    activeIndex = activeIndex - 10;
+    let divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
+    if (!divPokemon2) {
+        poky(prevUrl, 'prev');
+
+        activeIndex = activeIndex + 20;
+
+        divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
+        console.log(divPokemon2);
+
+    }
+    //console.log(divPokemon);
+    divPokemon2.classList.add("activePokemon");
+    divPokemon1.classList.remove("activePokemon");
+
+    // console.log("activeIndex=" + activeIndex);
+    //  namePokyurl(activePokemonName, activeIndex);
+    console.log(activeIndex);
+    //namePokyurl(activePokemonName);
+
+
+});
+topElement.addEventListener("click", function() {
+
+    let divPokemon1 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
+    //divPokemon.classList.remove("activePokemon");
+    divPokemon1.classList.add("activePokemon");
+    activeIndex = activeIndex - 1;
+    let divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
+    if (!divPokemon2) {
+        poky(prevUrl, 'prev');
+
+        activeIndex = 20;
+
+
+        divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
+        //console.log(divPokemon2);
+
+    }
+    //console.log(divPokemon);
+    divPokemon2.classList.add("activePokemon");
+    divPokemon1.classList.remove("activePokemon");
+
+    //namePokyurl(activePokemonName);
+
+});
+bottomElement.addEventListener("click", function() {
+    let divPokemon1 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
+    //divPokemon.classList.remove("activePokemon");
+    divPokemon1.classList.add("activePokemon");
+    activeIndex = activeIndex + 1;
+    let divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
+    if (!divPokemon2) {
+        poky(nextUrl, 'next');
+
+        activeIndex = 1;
+
+        divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
+        console.log(divPokemon2);
+
+    }
+    //console.log(divPokemon);
+    divPokemon2.classList.add("activePokemon");
+    divPokemon1.classList.remove("activePokemon");
+    //namePokyurl(activePokemonName);
+
+});
