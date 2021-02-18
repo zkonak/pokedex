@@ -4,14 +4,15 @@ var prevUrl = null;
 var activePokemonName = "pidgey";
 var activeIndex = 1;
 
-// function fetch(url, callback) {
-//     setTimeout(() => {
-//         callback(null, 'resultat');
-//     }, 1000);
-// }
+async function fetchData(url) {
+
+    let response = await fetch(url);
+    return response.json();
+
+}
 
 
-function poky(url, prev_ou_next) {
+async function poky(url, prev_ou_next) {
 
 
     let config = {
@@ -26,68 +27,71 @@ function poky(url, prev_ou_next) {
 
     } else {
 
-        fetch(url, config)
+        // fetch(url, config)
 
 
 
-        .then(function(response) {
-            //  console.log(response)
+        // .then(function(response) {
+        //  console.log(response)
 
-            response.json().then(function(data) {
+        // response.json().then(function(data) {
 
-                // récuperer les datas sous forme de json
-                // console.log(data)
-                let pokymon = document.querySelector('.right-container__screen')
-
-                let box = ''
-                let urlElement = ''
-                nextUrl = data.next;
-                prevUrl = data.previous;
-
-                if (prev_ou_next == 'prev') {
-                    index = index - 40;
-                }
-                for (let i = 0; i < data.results.length; i++) {
-
-                    // // pour qu'il continu de compter de 20 car on un variable var
-
-                    index++;
+        // récuperer les datas sous forme de json
 
 
+        let data = await fetchData(url);
 
-                    let debut = index + '. ';
-                    // pour rajouter les 1 et - au début des names
-                    let nameMajuscule = data.results[i].name;
+        let pokymon = document.querySelector('.right-container__screen')
 
-                    nameMajuscule = nameMajuscule.charAt(0).toUpperCase() + nameMajuscule.slice(1);
-                    // faire le lien poky et son url
+        let box = ''
+        let urlElement = ''
+        nextUrl = data.next;
+        prevUrl = data.previous;
 
-                    urlElement = data.results[i].url;
-                    // <a href="javascript:namePokyurl('${data.results[i].name}');"></a>
-                    box += `<div onclick="javascript:namePokyurl('${data.results[i].name}','${index}');" class="list-item" id=${index.toString()}> ${debut}${nameMajuscule}</div>`
+        if (prev_ou_next == 'prev') {
+            index = index - 40;
+        }
+        for (let i = 0; i < data.results.length; i++) {
 
-                    //console.log(urlElement)
+            // // pour qu'il continu de compter de 20 car on un variable var
 
-
-                }
-
-                pokymon.innerHTML = box;
-
-                let elementa = document.querySelectorAll('.list-item>a')
-                elementa.forEach(element => {
-                    element.style.color = 'white';
-                    element.style.textDecoration = 'none';
-
-
-                    // console.log(element)
-
-                });
+            index++;
 
 
 
+            let debut = index + '. ';
+            // pour rajouter les 1 et - au début des names
+            let nameMajuscule = data.results[i].name;
+
+            nameMajuscule = nameMajuscule.charAt(0).toUpperCase() + nameMajuscule.slice(1);
+            // faire le lien poky et son url
+
+            urlElement = data.results[i].url;
+            // <a href="javascript:namePokyurl('${data.results[i].name}');"></a>
+            box += `<div onclick="javascript:namePokyurl('${data.results[i].name}','${activeIndex}');" class="list-item" id=${data.results[i].name}> ${debut}${nameMajuscule}</div>`
+
+            //console.log(urlElement)
 
 
-            })
+        }
+
+        pokymon.innerHTML = box;
+
+        let elementa = document.querySelectorAll('.list-item>a')
+        elementa.forEach(element => {
+            element.style.color = 'white';
+            element.style.textDecoration = 'none';
+
+
+            // console.log(element)
+
+            //     });
+
+
+
+
+
+            // })
 
 
 
@@ -97,12 +101,12 @@ function poky(url, prev_ou_next) {
 
 };
 
-poky(nextUrl, 'next')
+poky(nextUrl, 'next');
 
 //clique next
 let next = document.querySelector('div.right-button')
 next.addEventListener("click", function() {
-    poky(nextUrl, 'next')
+    poky(nextUrl, 'next');
 });
 //clique prev
 let prev = document.querySelector('div.left-button')
@@ -118,7 +122,7 @@ prev.addEventListener("click", function() {
 
 
 
-function namePokyurl(namePokemon, index) {
+function namePokyurl(namePokemon, active_index) {
     //  box += `<div onclick="javascript:namePokyurl('${data.results[i].name}','${index}');" class="list-item"id=${nameMajuscule}> ${debut}${nameMajuscule}</div>`
     console.log("index::" + index);
     let pokedex = document.querySelector('div.main-section__black')
@@ -131,19 +135,30 @@ function namePokyurl(namePokemon, index) {
     let poketypetwo = document.querySelector(".poke-type-two");
     let nom = document.querySelector(".poke-name");
     let id = document.querySelector(".poke-id");
-    //active pokemon changement
-    activePokemonName = namePokemon;
-    activeIndex = index;
+    let pokemonDivs = document.querySelectorAll(".list-item");
+    let activeElement = document.getElementById(namePokemon);
+
+
+    ///css style remove for blue clair
+    pokemonDivs.forEach((pokemonDiv) => {
+        pokemonDiv.classList.remove("activePokemon");
+    });
+
+    activeElement.classList.add("activePokemon");
+
+
+
+
 
 
     divElement.classList.remove("hide");
 
-    console.log(divElement);
+
     fetch("https://pokeapi.co/api/v2/pokemon/" + namePokemon)
         .then(function(response) {
             response.json()
                 .then(function(data) {
-                    console.log(data);
+                    //console.log(data);
                     nom.innerHTML = data.name;
                     //pour ajouter 0 au debut
                     id.innerHTML = "#" + data.id.toString().padStart(3, '0');
@@ -161,7 +176,10 @@ function namePokyurl(namePokemon, index) {
                         poketypetwo.innerHTML = data.types[1].type.name;
                     }
                     divElement.classList.add(data.types[0].type.name);
-
+                    //active pokemon changement
+                    activePokemonName = namePokemon;
+                    activeIndex = active_index;
+                    console.log("active index a change" + activeIndex);
 
 
 
@@ -183,14 +201,14 @@ function namePokyurl(namePokemon, index) {
 //  function pour nous envoyer var lurel
 
 //bonusss
-console.log(activePokemonName);
+
 
 //let buttons = document.querySelectorAll('.buttons__button');
 let buttonB = document.querySelector('.controllers__buttons div:nth-child(1)');
 let buttonA = document.querySelector('.controllers__buttons div:nth-child(2)');
 
 buttonA.addEventListener("click", function() {
-    namePokyurl(activePokemonName);
+    namePokyurl(activePokemonName, activeIndex);
 });
 //${activeIndex}
 
@@ -199,7 +217,11 @@ let leftElement = document.querySelector(".left");
 let topElement = document.querySelector(".top");
 let bottomElement = document.querySelector(".bottom");
 
-rightElement.addEventListener("click", function() {
+
+async function moveRight() {
+
+
+    console.log(activeIndex);
     let divPokemon1 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
     //divPokemon.classList.remove("activePokemon");
     divPokemon1.classList.add("activePokemon");
@@ -207,57 +229,58 @@ rightElement.addEventListener("click", function() {
     let divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
     if (!divPokemon2) {
 
-        poky(nextUrl, 'next');
-
-
-        setTimeout(() => {
-            activeIndex = activeIndex % 10;
-
-
-            divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
-
-        }, 1000);
-
-        //console.log(divPokemon2);
+        await poky(nextUrl, 'next');
+        activeIndex = activeIndex % 10;
+        if (activeIndex == 0) { activeIndex = 10; }
+        divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
 
     }
-    //console.log(divPokemon);
+
+    activePokemonName = divPokemon2.id;
     divPokemon2.classList.add("activePokemon");
     divPokemon1.classList.remove("activePokemon");
-    console.log(activeIndex);
-    // console.log("activeIndex=" + activeIndex);
-    //  namePokyurl(activePokemonName, activeIndex);
+
+    //  }, 100);
 
 
 
-});
-leftElement.addEventListener("click", function() {
+}
+
+
+async function moveLeft() {
+
+
     let divPokemon1 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
     //divPokemon.classList.remove("activePokemon");
     divPokemon1.classList.add("activePokemon");
     activeIndex = activeIndex - 10;
     let divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
     if (!divPokemon2) {
-        poky(prevUrl, 'prev');
+        await poky(prevUrl, 'prev');
 
         activeIndex = activeIndex + 20;
 
         divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
-        console.log(divPokemon2);
-
     }
-    //console.log(divPokemon);
+
+    activePokemonName = divPokemon2.id;
     divPokemon2.classList.add("activePokemon");
     divPokemon1.classList.remove("activePokemon");
 
-    // console.log("activeIndex=" + activeIndex);
-    //  namePokyurl(activePokemonName, activeIndex);
-    console.log(activeIndex);
-    //namePokyurl(activePokemonName);
 
 
-});
-topElement.addEventListener("click", function() {
+
+
+
+
+
+
+}
+
+
+
+
+async function moveUp() {
 
     let divPokemon1 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
     //divPokemon.classList.remove("activePokemon");
@@ -265,40 +288,76 @@ topElement.addEventListener("click", function() {
     activeIndex = activeIndex - 1;
     let divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
     if (!divPokemon2) {
-        poky(prevUrl, 'prev');
+        await poky(prevUrl, 'prev');
 
         activeIndex = 20;
-
-
         divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
-        //console.log(divPokemon2);
-
     }
-    //console.log(divPokemon);
+
+    activePokemonName = divPokemon2.id;
     divPokemon2.classList.add("activePokemon");
     divPokemon1.classList.remove("activePokemon");
 
-    //namePokyurl(activePokemonName);
 
-});
-bottomElement.addEventListener("click", function() {
+
+
+
+}
+
+
+
+async function moveDown() {
     let divPokemon1 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
     //divPokemon.classList.remove("activePokemon");
     divPokemon1.classList.add("activePokemon");
     activeIndex = activeIndex + 1;
     let divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
     if (!divPokemon2) {
-        poky(nextUrl, 'next');
+        await poky(nextUrl, 'next');
 
         activeIndex = 1;
 
         divPokemon2 = document.querySelector(`.right-container__screen div:nth-child(${activeIndex})`);
-        console.log(divPokemon2);
-
     }
-    //console.log(divPokemon);
+
+    activePokemonName = divPokemon2.id;
     divPokemon2.classList.add("activePokemon");
     divPokemon1.classList.remove("activePokemon");
-    //namePokyurl(activePokemonName);
+
+
+
+
+}
+
+
+
+
+rightElement.addEventListener("click", moveRight);
+//window.addEventListener("keyright", moveRight);
+leftElement.addEventListener("click", moveLeft);
+//window.addEventListener("keyleft", moveLeft);
+topElement.addEventListener("click", moveUp);
+//
+bottomElement.addEventListener("click", moveDown);
+//window.addEventListener("keydown", moveDown);
+
+window.addEventListener("keyup", function(e) {
+
+
+    if (e.keyCode == '38') {
+        moveUp();
+    } else if (e.keyCode == '40') {
+        // down arrow
+        moveDown();
+    } else if (e.keyCode == '37') {
+        // left arrow
+        moveLeft();
+    } else if (e.keyCode == '39') {
+        // right arrow
+        moveRight();
+    } else if (e.key == "A" || e.key == "a") {
+        namePokyurl(activePokemonName, activeIndex);
+    }
+
 
 });
